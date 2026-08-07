@@ -120,15 +120,22 @@ class Sample:
 class LineRecognitionDataset:
     """A ``torch.utils.data.Dataset`` over a ``path<TAB>text`` manifest.
 
+    Relative image paths in the manifest resolve against the **manifest's own
+    directory** (``root=None``, the default) — so ``synth/labels.txt`` with
+    ``images/0001.png`` finds ``synth/images/0001.png`` no matter the process
+    cwd.  Pass ``root`` explicitly to override (absolute paths in the manifest
+    always win either way).
+
     Subclasses :class:`torch.utils.data.Dataset` lazily so importing this module
     doesn't require torch until you actually build a dataset.
     """
 
     def __init__(self, manifest: str, codec: Optional[LabelCodec] = None,
-                 root: str = "", height: int = IMG_HEIGHT) -> None:
+                 root: Optional[str] = None, height: int = IMG_HEIGHT) -> None:
         self.codec = codec or LabelCodec()
         self.height = height
-        self.root = Path(root)
+        self.root = (Path(manifest).resolve().parent if root is None
+                     else Path(root))
         self.samples: List[Sample] = []
         with open(manifest, encoding="utf-8") as f:
             for line in f:

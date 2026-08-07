@@ -33,6 +33,7 @@ test-core:
 	@$(PYTHON) tests/test_charset.py
 	@$(PYTHON) tests/test_postprocess.py
 	@$(PYTHON) tests/test_eval.py
+	@$(PYTHON) tests/test_dataset_paths.py
 
 charset:
 	$(PYTHON) scripts/build_charset.py --out data/charset/syllables.txt

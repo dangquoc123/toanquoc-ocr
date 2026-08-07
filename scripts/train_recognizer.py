@@ -101,7 +101,10 @@ def main() -> int:
         opt, max_lr=args.lr, epochs=args.epochs,
         steps_per_epoch=max(1, len(train_dl)))
     use_amp = device == "cuda"
-    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    try:  # torch >= 2.3 unified AMP API; fall back for older builds
+        scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    except (AttributeError, TypeError):
+        scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
     for epoch in range(args.epochs):
         model.train()
@@ -114,7 +117,7 @@ def main() -> int:
             tgt_len = batch["target_lengths"].to(device)
 
             opt.zero_grad()
-            with torch.cuda.amp.autocast(enabled=use_amp):
+            with torch.autocast("cuda", enabled=use_amp):
                 feats = model.encode_features(images)     # shared encoder
                 out = model.head(feats)
                 lp = out["log_probs"]

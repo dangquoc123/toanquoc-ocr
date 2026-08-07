@@ -1,16 +1,14 @@
 """Recognition block (Design §3): SVTR backbone + factorised head + CTC/GTC.
 
-Imports require PyTorch.  Importing this subpackage raises a clear error if
-torch is missing; the pure-Python core (``vnocr.charset`` / ``vnocr.postprocess``
-/ ``vnocr.eval``) is unaffected and remains usable on its own.
+Re-exports are **lazy**: the torch-free parts (:class:`LabelCodec`,
+:class:`LineRecognitionDataset`, :func:`collate_fn`, ``IMG_HEIGHT``) import
+without PyTorch, while touching any neural component (:class:`VietRecognizer`,
+:class:`NRTRHead`, …) raises the usual clear ImportError if torch is missing.
+The pure-Python core (``vnocr.charset`` / ``vnocr.postprocess`` / ``vnocr.eval``)
+is unaffected either way.
 """
 
-from .ctc import ctc_loss, flat_log_probs_to_lattice, greedy_decode
-from .dataset import IMG_HEIGHT, LabelCodec, LineRecognitionDataset, collate_fn
-from .gtc import GTCConfig, NRTRHead, kd_loss
-from .head import FactorisedHead, build_flat_index
-from .model import VietRecognizer
-from .svtr import SVTRBackbone, svtr_tiny
+from importlib import import_module
 
 __all__ = [
     "VietRecognizer",
@@ -29,3 +27,34 @@ __all__ = [
     "collate_fn",
     "IMG_HEIGHT",
 ]
+
+_EXPORTS = {
+    "VietRecognizer": "model",
+    "SVTRBackbone": "svtr",
+    "svtr_tiny": "svtr",
+    "FactorisedHead": "head",
+    "build_flat_index": "head",
+    "ctc_loss": "ctc",
+    "greedy_decode": "ctc",
+    "flat_log_probs_to_lattice": "ctc",
+    "NRTRHead": "gtc",
+    "kd_loss": "gtc",
+    "GTCConfig": "gtc",
+    "LabelCodec": "dataset",
+    "LineRecognitionDataset": "dataset",
+    "collate_fn": "dataset",
+    "IMG_HEIGHT": "dataset",
+}
+
+
+def __getattr__(name: str):
+    if name in _EXPORTS:
+        module = import_module(f".{_EXPORTS[name]}", __name__)
+        value = getattr(module, name)
+        globals()[name] = value  # cache for subsequent lookups
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))
