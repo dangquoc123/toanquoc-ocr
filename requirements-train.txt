@@ -1,0 +1,9 @@
+# Training / neural stack (Design §7). Install on a GPU box (Kaggle T4/P100 is
+# enough for the first stages, §7.1).
+torch>=2.0
+numpy>=1.21
+pillow>=9.0
+opencv-python>=4.5
+pyyaml>=6.0
+# Optional, production LM:
+#   pip install https://github.com/kpu/kenlm/archive/master.zip

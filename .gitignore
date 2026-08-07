@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Models & data artifacts
+*.pt
+*.pth
+*.onnx
+*.arpa
+*.binary
+*.pkl
+checkpoints/
+models/
+data/synth/
+data/lm/*.arpa
+data/lm/*.binary
+data/lm/*.pkl
+# keep the generated syllable list out of VCS; regenerate with build_charset.py
+data/charset/syllables.txt
+
+# Datasets (download locally)
+data/vintext/
+data/*.zip
+
+# Large corpora — keep only the small sample
+data/corpus/*.txt
+!data/corpus/vi_sample.txt
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/

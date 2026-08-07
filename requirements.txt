@@ -1,0 +1,12 @@
+# Core (charset / postprocess / eval) needs NOTHING beyond the stdlib.
+# Install extras only for the blocks you actually run:
+#
+#   pip install -e '.[cv]'      # preprocess, table morphology, layout
+#   pip install -e '.[train]'   # recogniser, detector, SLANet, training
+#   pip install -e '.[serve]'   # ONNX Runtime + FastAPI serving
+#   pip install -e '.[dev]'     # everything + pytest
+#
+# This file lists the classical-CV runtime so the pipeline's non-neural stages
+# work out of the box.
+numpy>=1.21
+opencv-python>=4.5

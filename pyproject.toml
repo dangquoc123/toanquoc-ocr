@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vnocr"
+version = "0.1.0"
+description = "Light, LLM-free Vietnamese OCR: factorised tone recognition + n-gram post-processing"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "toanquoc" }]
+keywords = ["ocr", "vietnamese", "svtr", "ctc", "diacritics", "tone"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+# The pure-Python core (charset, postprocess, eval) has ZERO runtime deps.
+dependencies = []
+
+[project.optional-dependencies]
+# classical CV blocks: preprocess, table morphology, layout, box extraction
+cv = ["numpy>=1.21", "opencv-python>=4.5"]
+# neural blocks: recogniser, detector, SLANet, training
+train = ["torch>=2.0", "numpy>=1.21", "pillow>=9.0", "opencv-python>=4.5"]
+# production language model
+lm = ["https://github.com/kpu/kenlm/archive/master.zip"]
+# serving
+serve = ["onnxruntime>=1.15", "fastapi>=0.100", "uvicorn>=0.23"]
+# everything + dev tooling
+dev = ["pytest>=7.0", "numpy>=1.21", "opencv-python>=4.5", "torch>=2.0",
+       "pillow>=9.0", "pyyaml>=6.0"]
+
+# CLI tools are run as files — `python scripts/<name>.py` (see README/Makefile).
+# They are intentionally not console-script entry points to avoid installing a
+# generic top-level `scripts` package into site-packages.
+
+[tool.setuptools]
+packages = ["vnocr", "vnocr.charset", "vnocr.preprocess", "vnocr.layout",
+            "vnocr.detect", "vnocr.recognize", "vnocr.table",
+            "vnocr.postprocess", "vnocr.eval", "vnocr.utils"]
+
+[tool.setuptools.package-data]
+vnocr = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

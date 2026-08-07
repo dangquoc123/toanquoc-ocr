@@ -1,0 +1,20 @@
+# Reference text-detector configuration (Design §3, §2 budget).
+
+model:
+  type: dbnet                # Differentiable Binarisation
+  backbone: lcnet            # light backbone
+  neck: fpn                  # RepLKFPN-style
+  in_channels: 3
+  width: 32                  # 3-5M params, ~1.5MB INT8
+  k: 50.0                    # DB step sharpness
+
+postprocess:
+  box_thresh: 0.3
+  min_size: 3
+  unclip_ratio: 1.6
+
+train:
+  epochs: 40
+  batch_size: 16
+  lr: 1.0e-3
+  losses: [prob_bce, thresh_l1, binary_dice]   # DB supervises P, T, B̂

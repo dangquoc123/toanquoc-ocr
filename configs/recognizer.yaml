@@ -1,0 +1,48 @@
+# Reference recogniser configuration (Design §3).
+# These are the canonical hyperparameters; the dataclass defaults in
+# vnocr.recognize mirror them. Treat this file as the spec of record.
+
+model:
+  backbone: svtr_tiny          # SVTR-style, ~8-12M params (§2 budget)
+  in_channels: 1               # grayscale — no binarisation (§1.1)
+  out_dim: 256
+  # Lever 2 (§3.3): 48px height, height-preserving early strides.
+  # Stem does (1,2); these are the per-stage merge strides (sh, sw).
+  # Net effect: width /4 (T = W/4, long enough for CTC), height 48->24->12
+  # collapsed late then mean-pooled.
+  image_height: 48
+  strides: [[1, 2], [2, 1], [2, 1]]
+  dims: [64, 128, 256]
+  depths: [2, 2, 4]
+  mixers: [local, local, global]
+
+head:
+  type: factorised            # Lever 1 (§3.2)
+  use_interaction: true        # learned β(b,m,t); set false for the ablation
+  # classes derive from the charset: base(~102) + modifier(5) + tone(6)
+
+train:
+  epochs: 30
+  batch_size: 128
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  scheduler: onecycle
+  amp: true
+
+gtc:                           # Guided Training of CTC (§3.1)
+  enabled: true
+  lambda_ctc: 1.0
+  lambda_kd: 0.5
+  temperature: 2.0
+  teacher: nrtr                # dropped at inference
+
+aux_heads:                     # optional per-factor CE (§7.2)
+  enabled: false
+  lambda_base: 0.1
+  lambda_modifier: 0.1
+  lambda_tone: 0.2
+
+quantization:                  # §7.3 — QAT, never PTQ
+  method: qat
+  dtype: int8
+  verify_tone_accuracy: true   # measure p_T separately after quantising
