@@ -27,6 +27,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 
+def _code_version() -> str:
+    """Short git hash of the running checkout — makes stale code obvious."""
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["git", "log", "--oneline", "-1"],
+            capture_output=True, text=True, timeout=5,
+            cwd=Path(__file__).resolve().parents[1])
+        return r.stdout.strip() or "unknown (not a git checkout)"
+    except Exception:  # noqa: BLE001
+        return "unknown"
+
+
 def build_teacher_io(seq_targets, sos: int, eos: int, pad: int = 0):
     """From padded targets ``[B, L]`` build ``(decoder_input, decoder_target)``.
 
@@ -73,6 +86,7 @@ def main() -> int:
 
     device = args.device if torch.cuda.is_available() else "cpu"
     print(f"device: {device}")
+    print(f"code  : {_code_version()}")
 
     codec = LabelCodec()
     model = VietRecognizer(codec.charset,

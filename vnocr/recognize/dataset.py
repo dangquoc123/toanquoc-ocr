@@ -144,6 +144,16 @@ class LineRecognitionDataset:
                     continue
                 p, text = line.split("\t", 1)
                 self.samples.append(Sample(p, text))
+        # Fail fast with a diagnosable message instead of crashing inside a
+        # DataLoader worker mid-epoch (the first real-run failure mode).
+        if self.samples:
+            probe = self.root / self.samples[0].image_path
+            if not probe.exists():
+                raise FileNotFoundError(
+                    f"first manifest image not found: {probe}\n"
+                    f"  manifest = {manifest}\n  root     = {self.root}\n"
+                    "Relative manifest paths resolve against the manifest's "
+                    "directory; pass root=... to override.")
 
     def __len__(self) -> int:
         return len(self.samples)
