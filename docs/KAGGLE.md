@@ -20,10 +20,23 @@ make kaggle-zip          # tạo dist/vnocr-kaggle.zip
 3. Trong notebook: **Add Input** → chọn dataset `vnocr-repo` của bạn.
 4. Để `REPO_URL = ''` — notebook tự tìm repo trong `/kaggle/input/`.
 
-## Bước 2 — Tạo notebook
+## Bước 2 — Tạo notebook (import thẳng từ GitHub — nhanh nhất)
 
 1. **kaggle.com → Code → New Notebook**.
-2. **File → Import Notebook** → chọn `notebooks/kaggle_train.ipynb` từ máy.
+2. **File → Import Notebook → tab GitHub** → dán
+   `dangquoc123/toanquoc-ocr` → chọn `notebooks/kaggle_train.ipynb` → Import.
+
+(Hoặc tab Upload → chọn file `notebooks/kaggle_train.ipynb` từ máy.)
+
+### Tuỳ chọn: đẩy notebook bằng Kaggle CLI (tự động hoá về sau)
+```bash
+pip3 install kaggle
+# kaggle.com → Settings → API → Create New API Token → lưu file về ~/.kaggle/kaggle.json
+chmod 600 ~/.kaggle/kaggle.json
+# sửa KAGGLE_USERNAME trong notebooks/kernel-metadata.json thành username Kaggle của bạn, rồi:
+cd notebooks && kaggle kernels push -p .
+```
+Lưu ý: API token là **credential cá nhân** — tự tải và đặt vào máy, đừng chia sẻ.
 
 ## Bước 3 — Bật GPU + Internet (bắt buộc)
 
